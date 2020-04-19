@@ -5,6 +5,7 @@ Project purpose is to create data processing applications using APIs of Apache H
 ## Prerequisites
 
 ● Cloudera Quickstart VM (VirtualBox) 5.13 has been used for this project.
+
 ● Cluster address is localhost.
 
 Note: Maven dependencies of the project has been configured to create a fat jar. Therefore, there is no requirement for running application with additional jar on Big Data cluster (Cloudera Cluster).
