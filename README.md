@@ -1,6 +1,6 @@
 # Hadoop - Kafka Data Analysis Application
 
-Project purpose is to create data processing applications using APIs of Apache Hadoop, Apache Hive and Apache Kafka Frameworks. [UPDATED! Solution document](https://github.com/onurtokat/iot_log_collector/blob/master/iot_solution_document.docx) has been added to project directory.
+Project purpose is to create data processing applications using APIs of Apache Hadoop, Apache Hive and Apache Kafka Frameworks.
 
 ## Prerequisites
 
