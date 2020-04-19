@@ -50,7 +50,16 @@ public class CheapestPricePerHotel extends GenericUDF {
         Map<IntWritable, StructObject> hotels =
                 (Map<IntWritable, StructObject>) inputOI.getMap(deferredObjects[0].get());
 
+        if (hotels == null) {
+            return null;
+        }
+
         for (StructObject advertisers : hotels.values()) {
+
+            if (advertisers == null) {
+                return null;
+            }
+
             //struct of advertisers
             StructObjectInspector structOI = (StructObjectInspector) inputOI.getMapValueObjectInspector();
 
@@ -86,18 +95,18 @@ public class CheapestPricePerHotel extends GenericUDF {
                     BooleanWritable isBreakfast = ((LazyBoolean) contentOI.
                             getStructFieldData(content, breakfast)).getWritableObject();
 
-                    if (!isBreakfast.get()) {
+                    if (isBreakfast.get()) {
                         if (costTemp.get() == 0 || cost.get() < costTemp.get()) {
                             costTemp = new IntWritable(cost.get());
                         }
                     }
                 }
             }
-            if(costTemp.get()!=0){
+            if (costTemp.get() != 0) {
                 minCostList.add(costTemp);
             }
         }
-        return minCostList;
+        return (minCostList.isEmpty() ? null : minCostList);
     }
 
     @Override
