@@ -225,7 +225,7 @@ kafka-console-consumer --bootstrap-server localhost:9092 --topic instructions0 -
 kafka-console-consumer --bootstrap-server localhost:9092 --topic intro --from-beginning
 kafka-console-consumer --bootstrap-server localhost:9092 --topic locations --from-beginning
 ```
-After reading all of these topics, They could be seen under zookeeper's registered topics list as below
+After reading all of these topics, They could be seen under zookeeper's registered list of topics as below
 
 ```HTML
 kafka-topics --zookeeper localhost:2181 --list
@@ -263,10 +263,10 @@ ConfigCreatorTest.class
 
  This project can be run as JAR in the;
  
- <li>On a Cloudera Quikstart 5.13 VM</li>
+ <li>On a Cloudera Quickstart 5.13 VM</li>
  <li>On a Cloudera server hosted by cloud provider</li>
- <li>In a Cloudera Quikstart 5.13 container</li>
- <li>In a Cloudera Quikstart 5.13 container hosted by cloud provider</li>
+ <li>In a Cloudera Quickstart 5.13 container</li>
+ <li>In a Cloudera Quickstart 5.13 container hosted by cloud provider</li>
 
 ## Built With
 
