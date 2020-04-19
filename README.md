@@ -256,7 +256,7 @@ kafka-console-consumer --bootstrap-server localhost:9092 --topic windowedAggrega
 
 ## Running the tests
 
-Test classes can found under src/test/java/com/company directory.
+Test classes can be found under src/test/java/com/company directory.
 
 ```HTML
 CheapestPricePerHotelTest.class
