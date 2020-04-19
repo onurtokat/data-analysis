@@ -245,6 +245,13 @@ Kafka Streaming application can be used as below on VM
 ```HTML
 java -cp data-analysis-1.0-SNAPSHOT-jar-with-dependencies.jar com.company.kafka.streaming.HotelActionEventAggregation 
  ```
+Aggregated data is stored on windowedAggregation-output-topic topic
+
+Topic data can be checked as below kafka-console-consumer tool
+
+```HTML
+kafka-console-consumer --bootstrap-server localhost:9092 --topic windowedAggregation-output-topic --from-beginning --formatter kafka.tools.DefaultMessageFormatter --property print.key=true --property print.value=true --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer --property value.deserializer=org.apache.kafka.common.serialization.LongDeserializer 
+ ```
 
 ## Running the tests
 
