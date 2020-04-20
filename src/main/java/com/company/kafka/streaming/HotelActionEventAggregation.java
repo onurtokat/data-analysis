@@ -88,7 +88,7 @@ public class HotelActionEventAggregation {
 
     /**
      * timeWindowedKTable provided windowed aggregated click or view events
-     * @param kStream
+     * @param kStream click or view filtered kstream
      * @param filterName click or view
      * @return windowed and aggregated KTable
      */
