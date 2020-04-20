@@ -21,12 +21,22 @@ public class HotelActionEventAggregation {
 
     public static void main(String[] args) {
         StreamsBuilder builder = new StreamsBuilder();
-        KStream<String, String> kStream = builder.stream("data");
-        KStream<String, Long> kStreamFormatted = kStream.selectKey((key, value) -> value).map((key, value) ->
-                new KeyValue<>(key.replace(",", "-"), 1L));
 
-        //group stream and operate windowed aggregation
-        KTable<Windowed<String>, Long> timeWindowedAggregatedStream = kStreamFormatted
+        //main kstream
+        KStream<String, String> kStream = builder.stream("data");
+
+        //click filtered kstream
+        KStream<String, Long> clickFormatted = kStream.filter((key, value) -> value.contains("click")).
+                selectKey((key, value) -> value).map((key, value) ->
+                new KeyValue<>(key.split(",")[0], 1L));
+
+        //view filtered kstream
+        KStream<String, Long> viewFormatted = kStream.filter((key, value) -> value.contains("view")).
+                selectKey((key, value) -> value).map((key, value) ->
+                new KeyValue<>(key.split(",")[0], 1L));
+
+        //group stream and operate windowed aggregation for click
+        KTable<Windowed<String>, Long> timeWindowedClick = clickFormatted
                 .groupByKey(Grouped.<String, Long>as(null)
                         .withValueSerde(Serdes.Long()))
                 .windowedBy(TimeWindows.of(Duration.ofMinutes(30)))
@@ -34,13 +44,30 @@ public class HotelActionEventAggregation {
                         () -> 0L, /* initializer */
                         (aggKey, newValue, aggValue) -> aggValue + newValue, /* adder */
                         Materialized
-                                .<String, Long, WindowStore<Bytes, byte[]>>as("time-windowed-aggregated-stream-store")
+                                .<String, Long, WindowStore<Bytes, byte[]>>as("timeWindowedClick-aggregated-stream-store")
                                 .withValueSerde(Serdes.Long()));
 
-        timeWindowedAggregatedStream.toStream().to("windowedAggregation-output-topic",
+        //group stream and operate windowed aggregation for view
+        KTable<Windowed<String>, Long> timeWindowedView = viewFormatted
+                .groupByKey(Grouped.<String, Long>as(null)
+                        .withValueSerde(Serdes.Long()))
+                .windowedBy(TimeWindows.of(Duration.ofMinutes(30)))
+                .aggregate(
+                        () -> 0L, /* initializer */
+                        (aggKey, newValue, aggValue) -> aggValue + newValue, /* adder */
+                        Materialized
+                                .<String, Long, WindowStore<Bytes, byte[]>>as("timeWindowedView-aggregated-stream-store")
+                                .withValueSerde(Serdes.Long()));
+
+        //joined ktable
+        KTable<Windowed<String>, String> joined = timeWindowedClick.join(timeWindowedView,
+                (clickValue, viewValue) -> "click=" + clickValue + ", view=" + viewValue /* ValueJoiner */);
+
+        //to result topic
+        joined.toStream().to("windowedAggregation-output-topic",
                 Produced.with(
                         WindowedSerdes.timeWindowedSerdeFrom(String.class),
-                        Serdes.Long()));
+                        Serdes.String()));
 
         Topology topology = builder.build();
         System.out.println(topology.describe());
