@@ -13,14 +13,15 @@ import org.apache.hadoop.io.BooleanWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class CheapestPricePerHotel extends GenericUDF {
 
     private MapObjectInspector inputOI;
-    private List<IntWritable> minCostList = new ArrayList<>();
+    //fast insert --> LinkedList
+    private List<IntWritable> minCostList = new LinkedList<>();
 
     @Override
     public ObjectInspector initialize(ObjectInspector[] objectInspectors) throws UDFArgumentException {
