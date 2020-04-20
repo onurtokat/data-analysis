@@ -15,6 +15,10 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * HotelActionEventAggregation class calculate click and view events in a windowed frame
+ * @author Onur Tokat
+ */
 public class HotelActionEventAggregation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("HotelActionEventAggregation");
@@ -26,38 +30,16 @@ public class HotelActionEventAggregation {
         KStream<String, String> kStream = builder.stream("data");
 
         //click filtered kstream
-        KStream<String, Long> clickFormatted = kStream.filter((key, value) -> value.contains("click")).
-                selectKey((key, value) -> value).map((key, value) ->
-                new KeyValue<>(key.split(",")[0], 1L));
+        KStream<String, Long> clickFormatted = filteredKStream(kStream, "click");
 
         //view filtered kstream
-        KStream<String, Long> viewFormatted = kStream.filter((key, value) -> value.contains("view")).
-                selectKey((key, value) -> value).map((key, value) ->
-                new KeyValue<>(key.split(",")[0], 1L));
+        KStream<String, Long> viewFormatted = filteredKStream(kStream, "view");
 
         //group stream and operate windowed aggregation for click
-        KTable<Windowed<String>, Long> timeWindowedClick = clickFormatted
-                .groupByKey(Grouped.<String, Long>as(null)
-                        .withValueSerde(Serdes.Long()))
-                .windowedBy(TimeWindows.of(Duration.ofMinutes(30)))
-                .aggregate(
-                        () -> 0L, /* initializer */
-                        (aggKey, newValue, aggValue) -> aggValue + newValue, /* adder */
-                        Materialized
-                                .<String, Long, WindowStore<Bytes, byte[]>>as("timeWindowedClick-aggregated-stream-store")
-                                .withValueSerde(Serdes.Long()));
+        KTable<Windowed<String>, Long> timeWindowedClick = timeWindowedKTable(clickFormatted, "click");
 
         //group stream and operate windowed aggregation for view
-        KTable<Windowed<String>, Long> timeWindowedView = viewFormatted
-                .groupByKey(Grouped.<String, Long>as(null)
-                        .withValueSerde(Serdes.Long()))
-                .windowedBy(TimeWindows.of(Duration.ofMinutes(30)))
-                .aggregate(
-                        () -> 0L, /* initializer */
-                        (aggKey, newValue, aggValue) -> aggValue + newValue, /* adder */
-                        Materialized
-                                .<String, Long, WindowStore<Bytes, byte[]>>as("timeWindowedView-aggregated-stream-store")
-                                .withValueSerde(Serdes.Long()));
+        KTable<Windowed<String>, Long> timeWindowedView = timeWindowedKTable(viewFormatted, "view");
 
         //joined ktable
         KTable<Windowed<String>, String> joined = timeWindowedClick.join(timeWindowedView,
@@ -70,7 +52,7 @@ public class HotelActionEventAggregation {
                         Serdes.String()));
 
         Topology topology = builder.build();
-        System.out.println(topology.describe());
+        System.out.println(topology.describe());//for debugging
         KafkaStreams kafkaStreams = new KafkaStreams(topology, ConfigCreator.getConfig());
 
         //gracefully shutdown
@@ -90,5 +72,36 @@ public class HotelActionEventAggregation {
                 countDownLatch.countDown();
             }
         });
+    }
+
+    /**
+     * filteredKStream method provides filtered stream for click or view events
+     * @param kStream main stream
+     * @param filterName click or view
+     * @return filtered KStream
+     */
+    public static KStream<String, Long> filteredKStream(KStream<String, String> kStream, String filterName) {
+        return kStream.filter((key, value) -> value.contains(filterName)).
+                selectKey((key, value) -> value).map((key, value) ->
+                new KeyValue<>(key.split(",")[0], 1L));
+    }
+
+    /**
+     * timeWindowedKTable provided windowed aggregated click or view events
+     * @param kStream
+     * @param filterName click or view
+     * @return windowed and aggregated KTable
+     */
+    public static KTable<Windowed<String>, Long> timeWindowedKTable(KStream<String, Long> kStream, String filterName) {
+        return kStream
+                .groupByKey(Grouped.<String, Long>as(null)
+                        .withValueSerde(Serdes.Long()))
+                .windowedBy(TimeWindows.of(Duration.ofMinutes(30)))
+                .aggregate(
+                        () -> 0L, /* initializer */
+                        (aggKey, newValue, aggValue) -> aggValue + newValue, /* adder */
+                        Materialized
+                                .<String, Long, WindowStore<Bytes, byte[]>>as(filterName + "-aggregated-stream-store")
+                                .withValueSerde(Serdes.Long()));
     }
 }
