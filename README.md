@@ -8,8 +8,6 @@ Project purpose is to create data processing applications using APIs of Apache H
 
 ● Cluster address is localhost.
 
-Note: Maven dependencies of the project has been configured to create a fat jar. Therefore, there is no requirement for running application with additional jar on Big Data cluster (Cloudera Cluster).
-
 ## Installing
 
 Create fat jar on project directory using below maven command. Expected artifact file will be data-analysis-1.0-SNAPSHOT-jar-with-dependencies.jar (fat-jar).
