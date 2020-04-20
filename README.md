@@ -251,7 +251,7 @@ Aggregated data is stored on windowedAggregation-output-topic topic
 Topic data can be checked as below kafka-console-consumer tool
 
 ```HTML
-kafka-console-consumer --bootstrap-server localhost:9092 --topic windowedAggregation-output-topic --from-beginning --formatter kafka.tools.DefaultMessageFormatter --property print.key=true --property print.value=true --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer --property value.deserializer=org.apache.kafka.common.serialization.LongDeserializer 
+kafka-console-consumer --bootstrap-server localhost:9092 --topic windowedAggregation-output-topic --from-beginning --formatter kafka.tools.DefaultMessageFormatter --property print.key=true --property print.value=true --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer --property value.deserializer=org.apache.kafka.common.serialization.StringDeserializer 
  ```
 
 ## Running the tests
