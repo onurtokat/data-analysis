@@ -51,12 +51,14 @@ public class CheapestPricePerHotel extends GenericUDF {
         Map<IntWritable, StructObject> hotels =
                 (Map<IntWritable, StructObject>) inputOI.getMap(deferredObjects[0].get());
 
+        //null check for hotelresults
         if (hotels == null) {
             return null;
         }
 
         for (StructObject advertisers : hotels.values()) {
 
+            //null check for advertisers struct object
             if (advertisers == null) {
                 return null;
             }
